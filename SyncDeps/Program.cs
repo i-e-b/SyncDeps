@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace SyncDeps {
@@ -92,7 +91,7 @@ namespace SyncDeps {
 		}
 		private static void ShowUsageMessage () {
 			Console.WriteLine("Usage:");
-			Console.WriteLine("MostRecentOnly \"path\" \"src pattern\" \"dst pattern\"");
+			Console.WriteLine("SyncDeps \"path\" \"src pattern\" \"dst pattern\"");
 			Console.WriteLine();
 			Console.WriteLine("Path: path to check. All files matching the pattern");
 			Console.WriteLine("      in this path and sub paths will be replaced by");
@@ -102,7 +101,7 @@ namespace SyncDeps {
 			Console.WriteLine("      Wildcards '*' and '?'");
 			Console.WriteLine();
 			Console.WriteLine("Example:");
-			Console.WriteLine("      MostRecentOnly \"C:\\Projects\\Twofour.MediaFreedom\\\" \"*\\bin\\Debug\\Twofour.MediaFreedom*.dll\" \"*\\Dependencies\\Twofour Assemblies\\Twofour.MediaFreedom.*.dll\" ");
+			Console.WriteLine("      SyncDeps \"C:\\Projects\\MyProject\\\" \"*\\bin\\Debug\\MyProject*.dll\" \"*\\Dependencies\\MyProject*.dll\" ");
 
 			Console.WriteLine();
 			Console.WriteLine("Press [ENTER] to continue...");

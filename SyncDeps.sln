@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MostRecentOnly", "MostRecentOnly\MostRecentOnly.csproj", "{C7CA8E64-E563-400F-B1CD-E337F2381C73}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncDeps", "SyncDeps\SyncDeps.csproj", "{2ED2196C-09CD-4774-8EC1-16434018125D}"
 EndProject
 Global
@@ -11,10 +9,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C7CA8E64-E563-400F-B1CD-E337F2381C73}.Debug|x86.ActiveCfg = Debug|x86
-		{C7CA8E64-E563-400F-B1CD-E337F2381C73}.Debug|x86.Build.0 = Debug|x86
-		{C7CA8E64-E563-400F-B1CD-E337F2381C73}.Release|x86.ActiveCfg = Release|x86
-		{C7CA8E64-E563-400F-B1CD-E337F2381C73}.Release|x86.Build.0 = Release|x86
 		{2ED2196C-09CD-4774-8EC1-16434018125D}.Debug|x86.ActiveCfg = Debug|x86
 		{2ED2196C-09CD-4774-8EC1-16434018125D}.Debug|x86.Build.0 = Debug|x86
 		{2ED2196C-09CD-4774-8EC1-16434018125D}.Release|x86.ActiveCfg = Release|x86

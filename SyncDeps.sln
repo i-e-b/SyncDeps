@@ -3,16 +3,38 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncDeps", "SyncDeps\SyncDeps.csproj", "{2ED2196C-09CD-4774-8EC1-16434018125D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{F1A89F8F-9AA6-4204-A718-091DF6E92700}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2ED2196C-09CD-4774-8EC1-16434018125D}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{2ED2196C-09CD-4774-8EC1-16434018125D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{2ED2196C-09CD-4774-8EC1-16434018125D}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{2ED2196C-09CD-4774-8EC1-16434018125D}.Debug|x86.ActiveCfg = Debug|x86
 		{2ED2196C-09CD-4774-8EC1-16434018125D}.Debug|x86.Build.0 = Debug|x86
+		{2ED2196C-09CD-4774-8EC1-16434018125D}.Release|Any CPU.ActiveCfg = Release|x86
+		{2ED2196C-09CD-4774-8EC1-16434018125D}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{2ED2196C-09CD-4774-8EC1-16434018125D}.Release|Mixed Platforms.Build.0 = Release|x86
 		{2ED2196C-09CD-4774-8EC1-16434018125D}.Release|x86.ActiveCfg = Release|x86
 		{2ED2196C-09CD-4774-8EC1-16434018125D}.Release|x86.Build.0 = Release|x86
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F1A89F8F-9AA6-4204-A718-091DF6E92700}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

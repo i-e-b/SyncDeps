@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.IO;
 
@@ -10,19 +11,10 @@ namespace SyncDeps {
 
 
 		static void Main (string[] args) {
-			#region Validation
-			if (args.Length != 3 && args.Length != 4) {
-				ShowUsageMessage();
-				return;
-			}
-			var rq_path = (args.Length == 4) ? (args[1]) : (args[0]);
-			var src_pattern = (args.Length == 4) ? (args[2]) : (args[1]);
-			var dst_pattern = (args.Length == 4) ? (args[3]) : (args[2]);
-			if (!Directory.Exists(rq_path)) {
-				ShowPathMessage();
-				return;
-			}
-			#endregion
+			string dst_pattern;
+			string rq_path;
+			string src_pattern;
+			if (!ValidateInput(args, out dst_pattern, out rq_path, out src_pattern)) return;
 
 			var root_path = new DirectoryInfo(rq_path);
 
@@ -31,18 +23,19 @@ namespace SyncDeps {
 
 			int fails = 0;
 			int copies = 0;
+			int unsourced = 0;
 			foreach (var filename in dst_files.Keys) {
 				var match_list = dst_files[filename];
 				if (match_list == null || match_list.Count < 1) continue;
 
 				if (!src_files.ContainsKey(filename)) {
-					//Console.WriteLine("Couldn't find a source for \"" + filename + "\"");
+					unsourced++;
 					continue;
 				}
 
 				var most_recent = src_files[filename].First(a => a.LastWriteTime == src_files[filename].Max(b => b.LastWriteTime));
 				if (most_recent == null) {
-					//Console.WriteLine("Couldn't find a source for \""+filename+"\"");
+					unsourced++;
 					continue;
 				}
 				foreach (var file_info in match_list) {
@@ -58,24 +51,44 @@ namespace SyncDeps {
 			}
 
 			Console.WriteLine("Finished. " + copies + " copies attempted.");
-			if (fails > 0) Console.WriteLine(fails + " copies failed");
+			if (fails > 0 || unsourced > 0) Console.WriteLine(fails + " copies failed, "+unsourced+" targets had no update source");
 			else Console.WriteLine("OK");
 		}
 
-		private static Dictionary<string, List<FileInfo>> FindMatches (string Pattern, DirectoryInfo RootPath) {
+		static bool ValidateInput(string[] args, out string dstPattern, out string rqPath, out string srcPattern)
+		{
+			if (args.Length != 3 && args.Length != 4)
+			{
+				ShowUsageMessage();
+				dstPattern = null;rqPath = null;srcPattern = null;
+				return false;
+			}
+			rqPath = (args.Length == 4) ? (args[1]) : (args[0]);
+			srcPattern = (args.Length == 4) ? (args[2]) : (args[1]);
+			dstPattern = (args.Length == 4) ? (args[3]) : (args[2]);
+			if (!Directory.Exists(rqPath))
+			{
+				ShowPathMessage();
+				return false;
+			}
+			return true;
+		}
+
+		private static Dictionary<string, List<FileInfo>> FindMatches (string pattern, DirectoryInfo rootPath) {
 			var most_recents = new Dictionary<string, List<FileInfo>>(); // File name => all file infos
 
-			var tmp = Pattern;
+			string tmp;
 			try {
-				tmp = Path.GetFileName(Pattern);
+				tmp = Path.GetFileName(pattern);
 			} catch {
-				tmp = Pattern;
+				tmp = pattern;
 			}
 
-			var matches = RootPath.GetFiles(tmp, SearchOption.AllDirectories);
+			Debug.Assert(tmp != null, "tmp != null");
+			var matches = rootPath.GetFiles(tmp, SearchOption.AllDirectories);
 
 			foreach (var match in matches) {
-				if (!match.FullName.CompareWildcard(Pattern, true)) continue;
+				if (!match.FullName.CompareWildcard(pattern, true)) continue;
 				var name = match.Name;
 				if (most_recents.ContainsKey(name)) {
 					most_recents[name].Add(match);
@@ -89,6 +102,7 @@ namespace SyncDeps {
 		private static void ShowPathMessage () {
 			Console.WriteLine("Path not found or no permissions");
 		}
+
 		private static void ShowUsageMessage () {
 			Console.WriteLine("Usage:");
 			Console.WriteLine("SyncDeps \"path\" \"src pattern\" \"dst pattern\"");

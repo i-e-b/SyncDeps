@@ -22,7 +22,8 @@ namespace SyncDeps {
 
 			if (!Directory.Exists(settings.BasePath))
 			{
-				ShowPathMessage();
+				ShowPathMessage(settings.BasePath);
+				ShowUsageMessage();
 				return;
 			}
 
@@ -41,7 +42,9 @@ namespace SyncDeps {
 
 				if (!src_files.ContainsKey(filename)) {
 					unsourced++;
-					log.Write("No source: "+filename+"\r\n");
+					log.Write("No source: ");
+					foreach (var filespec in dst_files[filename]) log.Write(filespec.FullName+"; ");
+					log.Write("\r\n");
 					continue;
 				}
 
@@ -95,8 +98,8 @@ namespace SyncDeps {
 			return most_recents;
 		}
 
-		private static void ShowPathMessage () {
-			Console.WriteLine("Path not found or no permissions");
+		private static void ShowPathMessage (string basePath) {
+			Console.WriteLine("Path not found or no permissions: "+basePath);
 		}
 
 		private static void ShowUsageMessage () {

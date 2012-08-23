@@ -6,10 +6,6 @@ using System.IO;
 
 namespace SyncDeps {
 	class Program {
-		// provide a list of '/bin' folders and a list of '/dependencies' folders.
-		// binaries only ever move from '/bin' to '/depedencies'.
-
-
 		static void Main(string[] args)
 		{
 			ArgumentParser settings;
@@ -35,6 +31,7 @@ namespace SyncDeps {
 
 			int fails = 0;
 			int copies = 0;
+			int manuals = 0;
 			int unsourced = 0;
 			foreach (var filename in dst_files.Keys) {
 				var match_list = dst_files[filename];
@@ -55,7 +52,15 @@ namespace SyncDeps {
 					continue;
 				}
 				foreach (var file_info in match_list) {
-					if (file_info == most_recent) throw new Exception("source was a dependency!");
+					if (file_info == most_recent) throw new Exception("Source was a dependency! Check your src and dst patterns don't overlap.");
+					
+					if (file_info.LastWriteTime > most_recent.LastWriteTime)
+					{
+						log.Write("Skipped \""+file_info.FullName +"\" because the target was newer.");
+						manuals++;
+						continue;
+					}
+
 					copies++;
 					try {
 						File.Copy(most_recent.FullName, file_info.FullName, true);
@@ -69,6 +74,7 @@ namespace SyncDeps {
 			var msg = "Finished. " + copies + " copies attempted. ";
 			if (fails > 0) msg += fails + " copies failed. ";
 			if (unsourced > 0) msg += unsourced + " targets had no update source. ";
+			if (manuals > 0) msg += manuals + " targets were newer than source (manual update?). ";
 
 			Console.WriteLine(msg);
 		}
@@ -109,6 +115,8 @@ namespace SyncDeps {
 			Console.WriteLine("Path: path to check. All files matching the pattern");
 			Console.WriteLine("      in this path and sub paths will be replaced by");
 			Console.WriteLine("      the most recent copy found by exact name.");
+			Console.WriteLine("      Destinations are not replaced if they are newer");
+			Console.WriteLine("      than the newest source.");
 			Console.WriteLine();
 			Console.WriteLine("Pattern: file name pattern to match against. May use");
 			Console.WriteLine("      Wildcards '*' and '?'");

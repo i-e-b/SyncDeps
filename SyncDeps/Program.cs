@@ -8,18 +8,11 @@ namespace SyncDeps {
 	class Program {
 		static void Main(string[] args)
 		{
-			ArgumentParser settings;
-			try {
-				settings = new ArgumentParser().Read(args);
-			} catch (ArgumentException) {
-				ShowUsageMessage();
-				return;
-			}
+			var settings = new ArgumentParser().Read(args);
 
 			if (!Directory.Exists(settings.BasePath))
 			{
 				ShowPathMessage(settings.BasePath);
-				ShowUsageMessage();
 				return;
 			}
 
@@ -34,6 +27,7 @@ namespace SyncDeps {
 
 		static void SyncroniseDependencies(StupidLogger log, ArgumentParser settings, DirectoryInfo root_path, Counter counter)
 		{
+			var masters = FindMasters(settings.Masters, root_path);
 			var src_files = FindMatches(settings.SourcePattern, root_path);
 			var dst_files = FindMatches(settings.DestPattern, root_path);
 
@@ -44,7 +38,7 @@ namespace SyncDeps {
 
 				if (HasNoSource(log, counter, dst_files, filename, src_files)) continue;
 
-				var newest_source = newest(src_files[filename]);
+				var newest_source = masters.Of(filename) ?? newest(src_files[filename]);
 
 				UpdateDestinations(log, counter, newest_source, match_list);
 			}
@@ -94,6 +88,29 @@ namespace SyncDeps {
 			return false;
 		}
 
+		static Dictionary<string, FileInfo> FindMasters(IEnumerable<string> masters, DirectoryInfo rootPath)
+		{
+			var most_recents = new Dictionary<string, FileInfo>(); // File name => all file infos
+
+			foreach (var master in masters)
+			{
+				var loc = new DirectoryInfo(Path.Combine(rootPath.FullName, master));
+				var matches = loc.GetFiles("*.*", SearchOption.AllDirectories);
+
+				foreach (var match in matches) {
+					var name = match.Name;
+					if (most_recents.ContainsKey(name)) {
+						if (match.LastWriteTime > most_recents[name].LastWriteTime)
+							most_recents[name] = match;
+					} else {
+						most_recents.Add(name, match);
+					}
+				}
+			}
+
+			return most_recents;
+		}
+
 		private static Dictionary<string, List<FileInfo>> FindMatches (string pattern, DirectoryInfo rootPath) {
 			var most_recents = new Dictionary<string, List<FileInfo>>(); // File name => all file infos
 
@@ -123,25 +140,5 @@ namespace SyncDeps {
 			Console.WriteLine("Path not found or no permissions: "+basePath);
 		}
 
-		private static void ShowUsageMessage () {
-			Console.WriteLine("Usage:");
-			Console.WriteLine("SyncDeps \"path\" \"src pattern\" \"dst pattern\" [\"log path\"]");
-			Console.WriteLine();
-			Console.WriteLine("Path: path to check. All files matching the pattern");
-			Console.WriteLine("      in this path and sub paths will be replaced by");
-			Console.WriteLine("      the most recent copy found by exact name.");
-			Console.WriteLine("      Destinations are not replaced if they are newer");
-			Console.WriteLine("      than the newest source.");
-			Console.WriteLine();
-			Console.WriteLine("Pattern: file name pattern to match against. May use");
-			Console.WriteLine("      Wildcards '*' and '?'");
-			Console.WriteLine();
-			Console.WriteLine("Example:");
-			Console.WriteLine("      SyncDeps \"C:\\Projects\\MyProject\\\" \"*\\bin\\Debug\\MyProject*.dll\" \"*\\Dependencies\\MyProject*.dll\" ");
-
-			Console.WriteLine();
-			Console.WriteLine("Press [ENTER] to continue...");
-			Console.ReadKey();
-		}
 	}
 }

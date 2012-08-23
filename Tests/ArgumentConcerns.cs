@@ -1,6 +1,7 @@
 ﻿#pragma warning disable 169 // ReSharper disable InconsistentNaming, CheckNamespace
 using System;
 using Machine.Specifications;
+using Mono.Options;
 using SyncDeps;
 
 // Feature: Tests
@@ -59,7 +60,7 @@ namespace ArgumentConcerns
 	{
 		Because it = ShouldFail(() => subject.Read(incomplete_arguments));
 
-		It throw_an_argument_exception =()=> the_exception.ShouldBeOfType<ArgumentException>();
+		It throw_an_options_exception =()=> the_exception.ShouldBeOfType<OptionException>();
 	}
 
 	#region contexts
@@ -68,18 +69,24 @@ namespace ArgumentConcerns
 		[Subject("with An argument parser")]
 		public abstract class An_argument_parser : ContextOf<ArgumentParser>
 		{
+			const string _b = "-b";
+			const string _s = "-s";
+			const string _d = "-d";
+			const string _l = "-log";
+
+
 			protected static string base_path = "base path";
 			protected static string source_pattern = "src patt";
 			protected static string dest_pattern = "dst patt";
 			protected static string log_path = "path";
-			protected static string log_argument = "-log:\"path\"";
+			protected static string log_argument = "\"path\"";
 			protected static string self_ref = "random unhelpful string";
 			
 			protected static string[] incomplete_arguments = new[] { source_pattern, dest_pattern };
-			protected static string[] full_arguments = new[] { base_path, source_pattern, dest_pattern, log_argument };
-			protected static string[] all_but_log_path = new[] { base_path, source_pattern, dest_pattern };
-			protected static string[] full_arguments_with_self_reference = new[] { self_ref, base_path, source_pattern, dest_pattern, log_argument };
-			protected static string[] all_but_log_path_with_self_reference = new[] { self_ref, base_path, source_pattern, dest_pattern };
+			protected static string[] full_arguments = new[] { _b , base_path, _s, source_pattern, _d, dest_pattern, _l, log_argument };
+			protected static string[] all_but_log_path = new[] { _b, base_path, _s, source_pattern, _d, dest_pattern };
+			protected static string[] full_arguments_with_self_reference = new[] { self_ref, _b, base_path, _s, source_pattern, _d, dest_pattern, _l, log_argument };
+			protected static string[] all_but_log_path_with_self_reference = new[] { self_ref, _b, base_path, _s, source_pattern, _d, dest_pattern };
 
 			Establish context = () =>
 			{

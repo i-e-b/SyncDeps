@@ -1,5 +1,6 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using Mono.Options;
 
 namespace SyncDeps
 {
@@ -7,20 +8,49 @@ namespace SyncDeps
 	{
 		public ArgumentParser Read(string[] args)
 		{
-			string[] realArgs;
-
-			int expectedArgs = 3;
-			if (args.Last().StartsWith("-log:")) expectedArgs++;
-
-			if (args.Length == expectedArgs) realArgs = args;
-			else if (args.Length == expectedArgs +1) realArgs = args.Skip(1).ToArray();
-			else throw new ArgumentException();
-
-			BasePath = realArgs[0];
-			SourcePattern = realArgs[1];
-			DestPattern = realArgs[2];
-			LogPath = (realArgs.Length > 3) ? (realArgs[3].Substring(5).Trim('"')) : (null);
+			Masters = new List<string>();
+			GetOptions(args);
 			return this;
+		}
+
+		void GetOptions(IEnumerable<string> args)
+		{
+			var p = new OptionSet{
+				{ "b=|base=", "The path to search under",
+				v => BasePath = strip(v)
+    			},
+				{ "s=|src=", "The source file pattern",
+				v => SourcePattern = strip(v)
+    			},
+				{ "d=|dst=", "The destination file pattern",
+				v => DestPattern = strip(v)
+    			},
+				{ "log=", "Log file",
+				v => LogPath = strip(v)
+    			},
+				{ "m=|masters=", "Directory containing master copies. These supercede sources regardless of age",
+				v => Masters.Add(v)
+    			}
+			};
+
+			try {
+				p.Parse(args);
+				
+				if (string.IsNullOrWhiteSpace(BasePath)) throw new OptionException("Must supply a base path", "b");
+				if (string.IsNullOrWhiteSpace(SourcePattern)) throw new OptionException("Must supply a source pattern", "s");
+				if (string.IsNullOrWhiteSpace(DestPattern)) throw new OptionException("Must supply a destination pattern", "d");
+				
+			} catch (OptionException e) {
+				Console.Write ("SyncDeps: ");
+				Console.WriteLine (e.Message);
+				Console.WriteLine ("Try `SyncDeps --help' for more information.");
+				throw;
+			}
+		}
+
+		string strip(string s)
+		{
+			return s.Trim('"', '\'');
 		}
 
 		public string BasePath { get; private set; }
@@ -30,5 +60,7 @@ namespace SyncDeps
 		public string DestPattern{ get; private set; }
 
 		public string LogPath { get; private set; }
+
+		public List<string> Masters { get; private set; }
 	}
 }

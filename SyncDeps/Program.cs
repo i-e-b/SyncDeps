@@ -25,58 +25,73 @@ namespace SyncDeps {
 
 			var log = new StupidLogger(settings.LogPath);
 			var root_path = new DirectoryInfo(settings.BasePath);
+			var counter = new Counter();
 
+			SyncroniseDependencies(log, settings, root_path, counter);
+
+			Console.WriteLine(counter);
+		}
+
+		static void SyncroniseDependencies(StupidLogger log, ArgumentParser settings, DirectoryInfo root_path, Counter counter)
+		{
 			var src_files = FindMatches(settings.SourcePattern, root_path);
 			var dst_files = FindMatches(settings.DestPattern, root_path);
 
-			int fails = 0;
-			int copies = 0;
-			int manuals = 0;
-			int unsourced = 0;
-			foreach (var filename in dst_files.Keys) {
+			foreach (var filename in dst_files.Keys)
+			{
 				var match_list = dst_files[filename];
 				if (match_list == null || match_list.Count < 1) continue;
 
-				if (!src_files.ContainsKey(filename)) {
-					unsourced++;
-					log.Write("No source: ");
-					foreach (var filespec in dst_files[filename]) log.Write(filespec.FullName+"; ");
-					log.Write("\r\n");
+				if (HasNoSource(log, counter, dst_files, filename, src_files)) continue;
+
+				var newest_source = newest(src_files[filename]);
+
+				UpdateDestinations(log, counter, newest_source, match_list);
+			}
+		}
+
+		static void UpdateDestinations(StupidLogger log, Counter counter, FileInfo newest_source, IEnumerable<FileInfo> match_list)
+		{
+			foreach (var potential_destination in match_list)
+			{
+				if (potential_destination == newest_source) throw new Exception("Source was a dependency! Check your src and dst patterns don't overlap.");
+
+				if (potential_destination.LastWriteTime > newest_source.LastWriteTime)
+				{
+					log.Write("Skipped \"" + potential_destination.FullName + "\" because the target was newer.");
+					counter.Manuals++;
 					continue;
 				}
 
-				var most_recent = src_files[filename].First(a => a.LastWriteTime == src_files[filename].Max(b => b.LastWriteTime));
-				if (most_recent == null) {
-					log.Write("No newer source: "+filename+", build order bad?\r\n");
-					unsourced++;
-					continue;
+				counter.Copies++;
+				try
+				{
+					File.Copy(newest_source.FullName, potential_destination.FullName, true);
 				}
-				foreach (var file_info in match_list) {
-					if (file_info == most_recent) throw new Exception("Source was a dependency! Check your src and dst patterns don't overlap.");
-					
-					if (file_info.LastWriteTime > most_recent.LastWriteTime)
-					{
-						log.Write("Skipped \""+file_info.FullName +"\" because the target was newer.");
-						manuals++;
-						continue;
-					}
-
-					copies++;
-					try {
-						File.Copy(most_recent.FullName, file_info.FullName, true);
-					} catch {
-						log.Write("Failed to overwrite \"" + file_info.FullName + "\" with \"" + most_recent.FullName + "\"");
-						fails++;
-					}
+				catch
+				{
+					log.Write("Failed to overwrite \"" + potential_destination.FullName + "\" with \"" + newest_source.FullName + "\"");
+					counter.Fails++;
 				}
 			}
+		}
 
-			var msg = "Finished. " + copies + " copies attempted. ";
-			if (fails > 0) msg += fails + " copies failed. ";
-			if (unsourced > 0) msg += unsourced + " targets had no update source. ";
-			if (manuals > 0) msg += manuals + " targets were newer than source (manual update?). ";
+		static FileInfo newest(List<FileInfo> srcFiles)
+		{
+			return srcFiles.First(a => a.LastWriteTime == srcFiles.Max(b => b.LastWriteTime));
+		}
 
-			Console.WriteLine(msg);
+		static bool HasNoSource(StupidLogger log, Counter counter, Dictionary<string, List<FileInfo>> dst_files, string filename, Dictionary<string, List<FileInfo>> src_files)
+		{
+			if (!src_files.ContainsKey(filename))
+			{
+				counter.Unsourced++;
+				log.Write("No source: ");
+				foreach (var filespec in dst_files[filename]) log.Write(filespec.FullName + "; ");
+				log.Write("\r\n");
+				return true;
+			}
+			return false;
 		}
 
 		private static Dictionary<string, List<FileInfo>> FindMatches (string pattern, DirectoryInfo rootPath) {

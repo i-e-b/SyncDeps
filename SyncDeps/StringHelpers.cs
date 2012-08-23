@@ -4,13 +4,14 @@
 /// A set of useful extension methods for strings.
 /// </summary>
 public static class StringHelpers {
-
 	/// <summary>
 	/// Compare this string to a path-style wildcard mask.
 	/// Mask may contain literal characters, '*' or '?'
 	/// There is no way to escape wildcard characters.
 	/// </summary>
+	/// <param name="Mask">Pattern to check against </param>
 	/// <param name="IgnoreCase">If true, case differences between this string and the mask will be ignored</param>
+	/// <param name="WildString">String to check</param>
 	/// <returns>True if this string fits the mask string. False otherwise.</returns>
 	public static bool CompareWildcard (this string WildString, string Mask, bool IgnoreCase) {
 		int i = 0, k = 0;
@@ -56,7 +57,7 @@ public static class StringHelpers {
 		var t = Other;
 		int n = s.Length;
 		int m = t.Length;
-		int[,] d = new int[n + 1, m + 1];
+		var d = new int[n + 1, m + 1];
 
 		if (n == 0) return m;
 		if (m == 0) return n;
@@ -79,9 +80,9 @@ public static class StringHelpers {
 	/// Converts a Hex-string into a byte array.
 	/// Remember to check for network order issues!
 	/// </summary>
-	private static byte[] ToByteArray (this String HexString) {
+	public static byte[] ToByteArray (this String HexString) {
 		int NumberChars = HexString.Length;
-		byte[] bytes = new byte[NumberChars / 2];
+		var bytes = new byte[NumberChars / 2];
 		for (int i = 0; i < NumberChars; i += 2) {
 			bytes[i / 2] = Convert.ToByte(HexString.Substring(i, 2), 16);
 		}

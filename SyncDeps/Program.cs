@@ -50,14 +50,7 @@ namespace SyncDeps {
 			foreach (var potential_destination in match_list)
 			{
 				if (potential_destination == newest_source) throw new Exception("Source was a dependency! Check your src and dst patterns don't overlap.");
-
-				if (potential_destination.LastWriteTime > newest_source.LastWriteTime)
-				{
-					log.Write("Skipped \"" + potential_destination.FullName + "\" because the target was newer.");
-					counter.Manuals++;
-					continue;
-				}
-
+				
 				counter.Copies++;
 				try
 				{

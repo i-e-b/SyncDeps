@@ -31,7 +31,7 @@ namespace SyncDeps
 		{
 			if (logFilePath == null) return;
 
-			File.AppendAllText(logFilePath, message);
+			File.AppendAllText(logFilePath, message + "\r\n");
 		}
 	}
 }

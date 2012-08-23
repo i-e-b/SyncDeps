@@ -9,6 +9,7 @@ namespace SyncDeps
 		public ArgumentParser Read(string[] args)
 		{
 			Masters = new List<string>();
+			Verbose = false;
 			GetOptions(args);
 			return this;
 		}
@@ -30,6 +31,9 @@ namespace SyncDeps
     			},
 				{ "m=|masters=", "Directory containing master copies. These supercede sources regardless of age",
 				v => Masters.Add(v)
+    			},
+				{ "v", "Verbose loggin",
+				v => Verbose = true
     			}
 			};
 
@@ -56,11 +60,12 @@ namespace SyncDeps
 		public string BasePath { get; private set; }
 
 		public string SourcePattern { get; private set; }
+		public List<string> Masters { get; private set; }
 
 		public string DestPattern{ get; private set; }
 
 		public string LogPath { get; private set; }
+		public bool Verbose { get; private set; }
 
-		public List<string> Masters { get; private set; }
 	}
 }

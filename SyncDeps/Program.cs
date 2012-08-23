@@ -39,6 +39,7 @@ namespace SyncDeps {
 				if (HasNoSource(log, counter, dst_files, filename, src_files)) continue;
 
 				var newest_source = masters.Of(filename) ?? newest(src_files[filename]);
+				if (settings.Verbose) log.Write("Chose: "+newest_source.FullName);
 
 				UpdateDestinations(log, counter, newest_source, match_list);
 			}
